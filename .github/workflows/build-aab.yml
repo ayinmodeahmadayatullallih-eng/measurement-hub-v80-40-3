@@ -1,20 +1,45 @@
-name: Build AAB FINAL
-on: [push, workflow_dispatch]
+name: Build AAB Google SDK SMART
+on: [workflow_dispatch]
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
+      - name: FIND REAL PROJECT (Fix subfolder issue)
+        run: |
+          ls -la
+          if [ -d "measurement-hub-v80-40-3-main" ]; then
+            mv measurement-hub-v80-40-3-main/* . -f
+            echo "Moved from subfolder"
+          fi
+          if [ -d "measurement-hub-v80-40-3" ]; then
+            mv measurement-hub-v80-40-3/* . -f
+            echo "Moved from subfolder 2"
+          fi
+          if ls *.zip 1>/dev/null 2>&1; then
+            unzip -o "*.zip"
+            mv */* . -f || true
+          fi
+          ls -la
+          ls -la android || echo "ANDROID NOT FOUND YET"
+
       - uses: actions/setup-node@v4
-        with: {node-version: 18}
+        with: { node-version: 20 }
       - uses: actions/setup-java@v4
-        with: {distribution: 'temurin', java-version: '17'}
+        with: { distribution: 'temurin', java-version: '17' }
+      - uses: android-actions/setup-android@v3
+
       - run: npm install --legacy-peer-deps
-      - run: |
-          chmod +x android/gradlew
+      - run: npx cap sync android
+
+      - name: Build AAB with Google SDK
+        run: |
           cd android
+          chmod +x gradlew
           ./gradlew bundleRelease
+
       - uses: actions/upload-artifact@v4
         with:
-          name: MeasurementHub-8MB-AAB-804003-FINAL
-          path: android/app/build/outputs/bundle/release/app-release.aab
+          name: GTV-UP-REAL-GOOGLE-SDK-AAB
+          path: android/app/build/outputs/bundle/release/*.aab
