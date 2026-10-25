@@ -15,16 +15,13 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-      - name: Unzip Source
+      - name: Build from subfolder
         run: |
-          ZIP=$(ls *.zip | head -n 1)
-          unzip -o "$ZIP" -d temp || true
-          mv temp/*/* . 2>/dev/null || mv temp/* . 2>/dev/null || true
-          rm -rf temp *.zip || true
-      - run: npm install --legacy-peer-deps || npm install
-      - run: chmod +x android/gradlew || true
-      - run: cd android && ./gradlew bundleRelease --no-daemon
+          cd measurement-hub-v80-40-3
+          npm install --legacy-peer-deps
+          chmod +x android/gradlew
+          cd android && ./gradlew bundleRelease --no-daemon
       - uses: actions/upload-artifact@v4
         with:
-          name: MeasurementHub-AAB-804003-8MB
-          path: android/app/build/outputs/bundle/release/app-release.aab
+          name: MeasurementHub-AAB-V80-40-3-CODE-804003-BN-8123456-8MB
+          path: measurement-hub-v80-40-3/android/app/build/outputs/bundle/release/app-release.aab
