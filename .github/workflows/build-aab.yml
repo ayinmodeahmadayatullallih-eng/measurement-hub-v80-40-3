@@ -1,4 +1,4 @@
-name: Build AAB Google SDK SMART
+name: Build REAL AAB Google SDK Fixed
 on: [workflow_dispatch]
 jobs:
   build:
@@ -6,23 +6,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: FIND REAL PROJECT (Fix subfolder issue)
+      - name: FIX DOUBLE FOLDER - Move to ROOT
         run: |
+          echo "BEFORE:"
           ls -la
+          # If file is inside double folder, move it out
+          if [ -d "measurement-hub-v80-40-3" ]; then
+            echo "Found subfolder, moving files to ROOT..."
+            mv measurement-hub-v80-40-3/* . 2>/dev/null || true
+            mv measurement-hub-v80-40-3/.* . 2>/dev/null || true
+          fi
           if [ -d "measurement-hub-v80-40-3-main" ]; then
             mv measurement-hub-v80-40-3-main/* . -f
-            echo "Moved from subfolder"
           fi
-          if [ -d "measurement-hub-v80-40-3" ]; then
-            mv measurement-hub-v80-40-3/* . -f
-            echo "Moved from subfolder 2"
-          fi
-          if ls *.zip 1>/dev/null 2>&1; then
-            unzip -o "*.zip"
-            mv */* . -f || true
-          fi
+          echo "AFTER FIX:"
           ls -la
-          ls -la android || echo "ANDROID NOT FOUND YET"
+          echo "Checking package.json:"
+          ls -la package.json
+          echo "Checking android:"
+          ls -la android
 
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
@@ -30,16 +32,19 @@ jobs:
         with: { distribution: 'temurin', java-version: '17' }
       - uses: android-actions/setup-android@v3
 
-      - run: npm install --legacy-peer-deps
+      - name: Install with Google SDK
+        run: npm install --legacy-peer-deps
+
       - run: npx cap sync android
 
-      - name: Build AAB with Google SDK
+      - name: Build REAL AAB
         run: |
           cd android
           chmod +x gradlew
           ./gradlew bundleRelease
+          ls -lh app/build/outputs/bundle/release/
 
       - uses: actions/upload-artifact@v4
         with:
-          name: GTV-UP-REAL-GOOGLE-SDK-AAB
+          name: GTV-UP-REAL-AAB-FIXED
           path: android/app/build/outputs/bundle/release/*.aab
