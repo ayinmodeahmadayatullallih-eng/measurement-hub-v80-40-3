@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>COMMUNITY-D</title>
+<link rel="manifest" href="manifest.json">
+<style>
+body{background:#0f172a;color:#fff;font-family:sans-serif;padding:15px}
+h1{color:#f59e0b;text-align:center}
+.card{background:#1e293b;padding:15px;border-radius:12px;margin:12px 0}
+input,button{width:100%;padding:12px;margin:6px 0;border-radius:8px;border:none}
+button{background:#f59e0b;font-weight:bold}
+.result{background:#0f172a;padding:8px;border-radius:6px;margin-top:6px}
+</style>
+</head>
+<body>
+<h1>COMMUNITY-D Measurement Hub</h1>
+<div class="card">
+<h3>Block Calculator</h3>
+<input id="L" type="number" placeholder="Length (m)">
+<input id="H" type="number" placeholder="Height (m)">
+<button onclick="calc()">Calculate</button>
+<div id="out" class="result">Result here</div>
+</div>
+<script>
+function calc(){
+var L=document.getElementById('L').value;
+var H=document.getElementById('H').value;
+var area=L*H;
+var blocks=Math.ceil(area/0.09);
+document.getElementById('out').innerHTML="Area: "+area+" sqm<br>Blocks: <b>"+blocks+"</b>";
+}
+</script>
+</body>
+</html>
